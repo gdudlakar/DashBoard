@@ -1,0 +1,43 @@
+count=`find /home/mykampaign/ -size +5G | wc -l`
+
+
+#!/bin/bash 
+
+## declare mail variables
+##email subject 
+subject="Server Memory Status Alert"
+##sending mail as
+from="server.monitor@example.com"
+## sending mail to
+to="admin1@example.com"
+## send carbon copy to
+also_to="admin2@example.com"
+
+## get total free memory size in megabytes(MB) 
+free=$(free -mt | grep Total | awk '{print $4}')
+
+## check if free memory is less or equals to  100MB
+if [[ "$free" -le 100  ]]; then
+        ## get top processes consuming system memory and save to temporary file 
+        ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head >/tmp/top_proccesses_consuming_memory.txt
+
+        file=/tmp/top_proccesses_consuming_memory.txt
+        ## send email if system memory is running low
+        echo -e "Warning, server memory is running low!\n\nFree memory: $free MB" | mailx -a "$file" -s "$subject" -r "$from" -c "$to" "$also_to"
+fi
+
+exit 0
+
+Disk=`du -ms /var/log/messages|  awk '{ print $1 }' | cut -d'M' -f1`
+Disk2=`du -ms /var/log/secure|  awk '{ print $1 }' | cut -d'M' -f1`
+Disk3=`du -ms /var/log/exim_mainlog |  awk '{ print $1 }' | cut -d'M' -f`
+Disk4=`du -ms /var/log/maillog |  awk '{ print $1 }' | cut -d'M' -f1`
+
+*****************************************************
+function folder_exist($folder)
+{
+    // Get canonicalized absolute pathname
+    $path = realpath($folder);
+    // If it exist, check if it's a directory
+    return ($path !== false and is_dir($path)) ? 1 : 0;
+}
